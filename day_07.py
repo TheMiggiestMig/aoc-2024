@@ -7,12 +7,11 @@ solve_b = 0
 import re
 import time
 
-operations = {
-    "*": lambda x, y: x * y,
-    "+": lambda x, y: x + y,
-    "/": lambda x, y: x // y,
-    "-": lambda x, y: x - y
-}
+operations = [
+    lambda x, y: x * y,
+    lambda x, y: x + y,
+    lambda x, y: int(str(x) + str(y)) # For Solve B
+]
 equations = []
 
 # Parse the file
@@ -31,7 +30,7 @@ with open(file) as f:
         
         line = f.readline().strip()
 
-def resolve(expected_result, values, current_result=None):
+def resolve(expected_result, values, concatenate=False, current_result=None):
     result = False
     
     if current_result is None:
@@ -40,17 +39,16 @@ def resolve(expected_result, values, current_result=None):
     
     if not values: return current_result == expected_result
     
-    for operation in operations:
-        result = result or resolve(expected_result, values[1:], operations[operation](current_result, values[0]))
+    for operation in operations if concatenate else operations[:-1]:
+        result = result or resolve(expected_result, values[1:], concatenate, operation(current_result, values[0]))
         if result:
-            print(f"Found matching result for {expected_result}")
-            time.sleep(0.0001)
             return True
     
     return result
     
 for equation in equations:
     solve_a += equation["expected"] if resolve(equation["expected"], equation["values"]) else 0
+    solve_b += equation["expected"] if resolve(equation["expected"], equation["values"], True) else 0
 
 print(solve_a)
 print(solve_b)
