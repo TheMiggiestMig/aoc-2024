@@ -4,9 +4,6 @@ file = 'test' if test else 'data'
 solve_a = 0
 solve_b = 0
 
-import re
-import time
-
 operations = [
     lambda x, y: x * y,
     lambda x, y: x + y,
