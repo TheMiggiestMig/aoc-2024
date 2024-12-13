@@ -1,4 +1,4 @@
-test = 1
+test = 0
 file = 'test'if test else 'data'
 
 solve_a = 0
@@ -13,15 +13,31 @@ with open(file) as f:
     line = f.readline().strip()
     stones = [int(stone)for stone in line.split(" ")]
 
-def run_rules(stone, index, stone_row):
+def run_rules(index, stone_row):
+    stone = stone_row[index]
     if stone == 0:
-        stone_row[index] = 1
+        stone = 1
         return [stone]
-    elif stone > 9 and not stone % 2:
+    elif not len(str(stone)) % 2:
         stone_str = str(stone)
-        new_stone = stone_str[(stone_str) // )]
-        pass
+        new_stone = int(stone_str[len(stone_str) // 2:])
+        stone = int(stone_str[:(len(stone_str) // 2)])
+        return [stone, new_stone]
+    else:
+        return [stone * 2024]
 
-print(stones)
-print(solve_a, f"(expected {expected_a})")
-print(solve_b, f"(expected {expected_b})")
+def blink(stones):
+    new_stones = []
+    for index in range(len(stones)):
+        new_stones += run_rules(index, stones)
+    
+    return new_stones
+
+for blink_number in range(75):
+    new_stones = blink(stones)
+    stones = new_stones
+
+solve_a = len(stones)
+
+print(solve_a, f"(test {expected_a})")
+print(solve_b, f"(test {expected_b})")
