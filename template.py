@@ -1,3 +1,4 @@
+import io
 test = 1
 test_data = io.StringIO(
 """
