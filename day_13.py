@@ -2,17 +2,29 @@ import io
 test = 1
 test_data = io.StringIO(
 """
-Put your test data here
-This is more data
-This is a third line
+Button A: X+94, Y+34
+Button B: X+22, Y+67
+Prize: X=8400, Y=5400
+
+Button A: X+26, Y+66
+Button B: X+67, Y+21
+Prize: X=12748, Y=12176
+
+Button A: X+17, Y+86
+Button B: X+84, Y+37
+Prize: X=7870, Y=6450
+
+Button A: X+69, Y+23
+Button B: X+27, Y+71
+Prize: X=18641, Y=10279
 """
 )
 test_data.readline() # Get rid of the first empty line (it's only there for display purposes).
 
 solve_a = 0
 solve_b = 0
-expected_a = 420
-expected_b = 9001
+expected_a = 100
+expected_b = 0
 
 # Parse the input and provide as many outputs as required.
 with test_data if test else open("data") as file:
