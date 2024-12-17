@@ -27,9 +27,18 @@ expected_a = 100
 expected_b = 0
 
 # Parse the input and provide as many outputs as required.
+machines = []
+
 with test_data if test else open("data") as file:
+    machine = {}
     for line in file:
-        print(line.strip())
+        if not line.strip():
+            machines.append(machine)
+            machine = {}
+        elif line[:1] == "P":
+            machine["Prize"] = tuple(int(value.split("=")[1]) for value in line[7:].split(", "))
+        else:
+            machine[line[7]] = tuple(int(value.split("+")[1]) for value in line[10:].split(", "))
 
 # Do the magic here
 
