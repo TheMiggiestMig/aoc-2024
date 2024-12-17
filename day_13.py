@@ -1,4 +1,6 @@
 import io
+import re
+
 test = 1
 test_data = io.StringIO(
 """
@@ -23,24 +25,48 @@ test_data.readline() # Get rid of the first empty line (it's only there for disp
 
 solve_a = 0
 solve_b = 0
-expected_a = 100
-expected_b = 0
+expected_a = 480
+expected_b = 875318608908
 
 # Parse the input and provide as many outputs as required.
 machines = []
 
 with test_data if test else open("data") as file:
-    machine = {}
-    for line in file:
-        if not line.strip():
-            machines.append(machine)
-            machine = {}
-        elif line[:1] == "P":
-            machine["Prize"] = tuple(int(value.split("=")[1]) for value in line[7:].split(", "))
-        else:
-            machine[line[7]] = tuple(int(value.split("+")[1]) for value in line[10:].split(", "))
+    machines_raw = file.read().split("\n\n")
+    for machine in machines_raw:
+        ax ,ay, bx, by, px, py = map(lambda n: int(n), re.findall(r"\d+", machine))
+        machines.append(((ax ,ay), (bx, by), (px, py)))
+
+solve_b_base = 10000000000000
 
 # Do the magic here
+def solve(base=0):
+    result = 0
+    for machine in machines:
+        # Linear algebra and simultaneous equations!
+        ax, ay = machine[0]
+        bx, by = machine[1]
+        px, py = machine[2]
+
+        if base: px, py = (px + base, py + base)
+
+        num_b = (ax * py) - (ay * px)
+        den_b = (ax * by) - (ay * bx)
+
+        b = num_b // den_b
+        mod_b = num_b % den_b
+
+        num_a = px - (bx * b)
+        a = num_a // ax
+
+        mod_a = num_a % ax
+
+        result += 0 if mod_a or mod_b else (a *3 + b)
+    
+    return result
+
+solve_a = solve()
+solve_b = solve(solve_b_base)
 
 print(f"[ DEBUG ] {f'PASS! ({solve_a})' if solve_a == expected_a else f'Fail (expected {expected_a}, got {solve_a}).'}" if test else solve_a)
 print(f"[ DEBUG ] {f'PASS! ({solve_b})' if solve_b == expected_b else f'Fail (expected {expected_b}, got {solve_b}).'}" if test else solve_b)
