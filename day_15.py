@@ -1,6 +1,5 @@
 import io
-import time
-test = 2
+test = 0
 test_data = []
 test_data.append(io.StringIO(
 """
@@ -140,37 +139,25 @@ def draw(map_grid, robot_position):
         row_string = ""
         for x, cell in enumerate(row):
             row_string += cell if (x, y) != robot_position else "@"
-            if cell == "O":
-                boxes += [(x, y)]
+            if cell in "O[":
                 result += (y * 100) + x
-            elif cell == "[":
-                boxes += [(x, y)]
-                left = x
-                right = len(row) - left
-                top = y
-                result += (y * 100) + min(left, right)
             
         print(row_string)
-    print(boxes)
     return result
 
-for instruction in move_instructions:
-    direction = directions[instruction]
-    next_cell = add_cell(robot_position, direction)
-    moved = move(robot_position, instruction, map_grid)
-    if moved:
-        robot_position = next_cell
+def run_course(instructions, map_grid, initial_robot_position):
+    robot_position = initial_robot_position
+    for instruction in move_instructions:
+        direction = directions[instruction]
+        next_cell = add_cell(robot_position, direction)
+        moved = move(robot_position, instruction, map_grid)
+        if moved:
+            robot_position = next_cell
+    
+    return draw(map_grid, robot_position)
 
-for instruction in move_instructions:
-    direction = directions[instruction]
-    next_cell = add_cell(robot_position_large, direction)
-    moved = move(robot_position_large, instruction, map_grid_large)
-    if moved:
-        robot_position_large = next_cell
-
-
-solve_a = draw(map_grid, robot_position)
-solve_b = draw(map_grid_large, robot_position_large)
+solve_a = run_course(move_instructions, map_grid, robot_position)
+solve_b = run_course(move_instructions, map_grid_large, robot_position_large)
 
 print(f"[ DEBUG ] {f'PASS! ({solve_a})' if solve_a == expected_a[0 if test == 1 else 1] else f'Fail (expected {expected_a[0 if test == 1 else 1]}, got {solve_a}).'}" if test else solve_a)
 print(f"[ DEBUG ] {f'PASS! ({solve_b})' if solve_b == expected_b[0 if test == 1 else 1] else f'Fail (expected {expected_b[0 if test == 1 else 1]}, got {solve_b}).'}" if test else solve_b)
