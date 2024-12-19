@@ -1,7 +1,8 @@
 import io
 import heapq
+import time
 
-test = 1
+test = 0
 test_data = []
 test_data.append(io.StringIO(
 """
@@ -83,13 +84,15 @@ class Cell():
     direction = (1, 0)
     total_cost = 0
     parent = None
+    visited_cells = []
 
-    def __init__(self, total_cost=0, x=0, y=0, direction=(1, 0), parent=None):
+    def __init__(self, total_cost=0, x=0, y=0, direction=(1, 0), parent=None, visited_cells=[]):
         self.total_cost = total_cost
         self.x = x
         self.y = y
         self.direction = direction
         self.parent = parent
+        self.visited_cells = visited_cells
     
     def diff(self, pos):
         x, y = (0, 0)
@@ -123,37 +126,45 @@ def in_bounds(cell:tuple, bounds:tuple):
 
 # Do the magic here
 def solve(start, end, map_grid, step_cost=1, turn_cost=1000):
+    step = 0
     pos = start
     previous_cell = None
     
     check_cells = [Cell(0, *start)]
-    visited_cells = set()
 
     best_path_cells = set()
     best_cost = 0
 
     while check_cells:
+        step += 1
+        if not step % 1000:
+            print(step, len(check_cells), f"Best cost ({best_cost})")
+            time.sleep(0.001)
+            
         cell = check_cells.pop(0)
         
         # Check if we've reached the end.
-        if cell.pos == end:
+        if cell.pos == end and not best_cost:
             path = []
             best_cost = cell.total_cost
         
-        if best_cost and cell.total_cost == best_cost:
-            best_cell = cell
-            while best_cell.parent:
-                best_path_cells.add(best_cell.pos)
-                best_cell = best_cell.parent
-        
+        if best_cost:
+            if cell.total_cost == best_cost:
+                best_cell = cell
+                while best_cell.parent:
+                    best_path_cells.add(best_cell.pos)
+                    best_cell = best_cell.parent
+            elif cell.total_cost > best_cost:
+                continue
+                
         # Add the cells to check.
         for direction in [cell.direction] + directions[cell.direction]:
             check_pos = cell.add(direction)
             
-            if in_bounds(check_pos, bounds) and map_grid[check_pos[1]][check_pos[0]] and check_pos not in visited_cells:
+            if in_bounds(check_pos, bounds) and map_grid[check_pos[1]][check_pos[0]] and check_pos not in cell.visited_cells:
                 check_cost = cell.total_cost + step_cost + (0 if direction == cell.direction else turn_cost)
-                check_cell = Cell(check_cost, *check_pos, direction, cell)
-
+                check_cell = Cell(check_cost, *check_pos, direction, cell, cell.visited_cells + [cell.pos])
+                
                 inserted = False
                 for i in range(len(check_cells)):
                     if check_cost < check_cells[i].total_cost:
@@ -163,12 +174,10 @@ def solve(start, end, map_grid, step_cost=1, turn_cost=1000):
 
                 if not inserted: check_cells.append(check_cell)
 
-        
-        visited_cells.add(cell.pos)
     return (best_cost, best_path_cells)
 
 solve_a, path = solve(start_position, end_position, map_grid)
-solve_b = len(path)
+solve_b = len(path) + 1
 
 for y, row in enumerate(map_grid):
     row_str = ""
