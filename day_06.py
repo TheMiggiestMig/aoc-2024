@@ -34,11 +34,15 @@ with open(file) as f:
     
     bounds = (cols, rows)
 
+def in_bounds(position, bounds):
+    global bounds
+    return 0 <= position[0] < bounds[0] and 0 <= position[1] < bounds[1]
+
 # Follow the guard's path (and determine if it loops)
 def traverse_map(position, facing, obstacles):
     map_grid = {}
     
-    while 0 <= position[0] < bounds[0] and 0 <= position[1] < bounds[1]:
+    while in_bounds(position):
         # Mark the guard's current position
         map_grid[position] = map_grid[position] + [facing] if position in map_grid.keys() else [facing]
 
@@ -46,10 +50,10 @@ def traverse_map(position, facing, obstacles):
         next_cell = (position[0] + facing[0], position[1] + facing[1])
 
         # Check if the guard is moving out of bounds (no loop)
-        if not (0 <= next_cell[0] < bounds[0] and 0 <= next_cell[1] < bounds[1]): break
+        if not (in_bounds(next_cell)): break
         
         # Check if the guard is in a loop
-        if next_cell in map_grid.keys() and facing in map_grid[next_cell]:
+        if next_cell in map_grid and facing in map_grid[next_cell]:
             return (map_grid, True)
         
         # Check if the guard will hit an obstacle
